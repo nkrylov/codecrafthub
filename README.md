@@ -23,6 +23,8 @@ codecrafthub/
 │   └── courses.json     # Persisted courses (auto-created if missing)
 ├── tests/
 │   └── api_test.sh      # zsh script: boots server + curl-based tests
+├── scripts/
+│   └── run.sh           # zsh script: sets up venv + starts server
 ├── requirements.txt
 ├── run.py               # Development server entry point
 └── README.md
@@ -53,30 +55,42 @@ pip install -r requirements.txt
 
 ## Run the server
 
+The easy way (creates a venv on first run):
+
 ```zsh
-python run.py          # listens on http://127.0.0.1:5050
-PORT=8000 python run.py  # or override the port
+./scripts/run.sh                 # http://localhost:5000/api/courses
+PORT=8000 ./scripts/run.sh       # custom port
+```
+
+Or manually:
+
+```zsh
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python run.py                    # listens on http://127.0.0.1:5000
+PORT=8000 python run.py          # or override the port
 ```
 
 Override the JSON storage location with an env var (used by the test script):
 
 ```zsh
-CODECRAFTHUB_DATA_FILE=/tmp/my-courses.json python run.py
+CODECRAFTHUB_DATA_FILE=/tmp/my-courses.json ./scripts/run.sh
 ```
 
 ## REST API
 
-Base URL: `http://127.0.0.1:5050`
+Base URL: `http://localhost:5000/api`
 
-| Method | Path             | Purpose                                  | Success |
-|--------|------------------|------------------------------------------|---------|
-| GET    | `/health`        | Liveness probe                           | 200     |
-| GET    | `/courses`       | List all courses                         | 200     |
-| GET    | `/courses/<id>`  | Get one course                           | 200     |
-| POST   | `/courses`       | Create a new course (auto-assigns `id`)  | 201     |
-| PUT    | `/courses/<id>`  | Full replace of a course                 | 200     |
-| PATCH  | `/courses/<id>`  | Partial update (e.g. change status only) | 200     |
-| DELETE | `/courses/<id>`  | Delete a course                          | 204     |
+| Method | Path                 | Purpose                                  | Success |
+|--------|----------------------|------------------------------------------|---------|
+| GET    | `/api/health`        | Liveness probe                           | 200     |
+| GET    | `/api/courses`       | List all courses                         | 200     |
+| GET    | `/api/courses/<id>`  | Get one course                           | 200     |
+| POST   | `/api/courses`       | Create a new course (auto-assigns `id`)  | 201     |
+| PUT    | `/api/courses/<id>`  | Full replace of a course                 | 200     |
+| PATCH  | `/api/courses/<id>`  | Partial update (e.g. change status only) | 200     |
+| DELETE | `/api/courses/<id>`  | Delete a course                          | 204     |
 
 Validation errors return `400`, missing IDs return `404`, all with a JSON
 `{"error": "..."}` body.
@@ -86,7 +100,7 @@ Validation errors return `400`, missing IDs return `404`, all with a JSON
 Create a course:
 
 ```zsh
-curl -s -X POST http://127.0.0.1:5050/courses \
+curl -s -X POST http://localhost:5000/api/courses \
   -H 'Content-Type: application/json' \
   -d '{
     "name": "Learn Flask",
@@ -110,7 +124,7 @@ Response:
 Update just the status:
 
 ```zsh
-curl -s -X PATCH http://127.0.0.1:5050/courses/1 \
+curl -s -X PATCH http://localhost:5000/api/courses/1 \
   -H 'Content-Type: application/json' \
   -d '{"status": "In Progress"}'
 ```
@@ -118,11 +132,11 @@ curl -s -X PATCH http://127.0.0.1:5050/courses/1 \
 Delete:
 
 ```zsh
-curl -s -X DELETE http://127.0.0.1:5050/courses/1 -w '%{http_code}\n'
+curl -s -X DELETE http://localhost:5000/api/courses/1 -w '%{http_code}\n'
 ```
 
 > Tip: piping responses through [`jq`](https://stedolan.github.io/jq/) makes
-> them much easier to read, e.g. `curl -s .../courses | jq`.
+> them much easier to read, e.g. `curl -s http://localhost:5000/api/courses | jq`.
 
 ## JSON storage
 
@@ -150,7 +164,7 @@ The script:
 4. Prints a PASS/FAIL summary and exits non-zero on any failure.
 5. Always stops the server and removes the test data file (via `trap`).
 
-Override the port if `5050` is busy:
+Override the port if `5000` is busy:
 
 ```zsh
 PORT=5599 ./tests/api_test.sh

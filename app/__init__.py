@@ -9,7 +9,8 @@ from .routes import bp as courses_bp
 def create_app() -> Flask:
     app = Flask(__name__)
 
-    app.register_blueprint(courses_bp)
+    # All course endpoints are served under /api (e.g. /api/courses).
+    app.register_blueprint(courses_bp, url_prefix="/api")
 
     @app.errorhandler(404)
     def _not_found(_e):

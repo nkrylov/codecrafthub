@@ -9,8 +9,8 @@ SCRIPT_DIR="${0:A:h}"
 ROOT_DIR="${SCRIPT_DIR:h}"
 cd "$ROOT_DIR"
 
-PORT="${PORT:-5050}"
-BASE="http://127.0.0.1:${PORT}"
+PORT="${PORT:-5000}"
+BASE="http://127.0.0.1:${PORT}/api"
 TEST_DATA_FILE="${ROOT_DIR}/data/courses.test.json"
 
 export CODECRAFTHUB_DATA_FILE="$TEST_DATA_FILE"
