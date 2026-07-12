@@ -10,7 +10,14 @@ DEFAULT_STATUS = "Not Started"
 
 # Whitelisted fields we persist. Anything else in the payload is dropped so the
 # JSON file never accumulates "runaway" data.
-ALLOWED_FIELDS = ("name", "description", "target_completion_date", "status")
+# `created_at` is set by the server on POST and preserved on updates.
+ALLOWED_FIELDS = (
+    "name",
+    "description",
+    "target_completion_date",
+    "status",
+    "created_at",
+)
 REQUIRED_FIELDS = ("name", "description", "target_completion_date")
 
 
@@ -74,4 +81,3 @@ def validate_course(
         clean["status"] = payload["status"]
 
     return clean, None
-

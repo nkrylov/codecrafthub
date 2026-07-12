@@ -25,6 +25,8 @@ codecrafthub/
 │   └── api_test.sh      # zsh script: boots server + curl-based tests
 ├── scripts/
 │   └── run.sh           # zsh script: sets up venv + starts server
+├── web/
+│   └── index.html       # Single-file vanilla-JS UI (served at /)
 ├── requirements.txt
 ├── run.py               # Development server entry point
 └── README.md
@@ -61,6 +63,9 @@ The easy way (creates a venv on first run):
 ./scripts/run.sh                 # http://localhost:5000/api/courses
 PORT=8000 ./scripts/run.sh       # custom port
 ```
+
+Open [http://localhost:5000/](http://localhost:5000/) in your browser to use the
+built-in web UI (a single HTML file with vanilla JS/CSS — no frameworks).
 
 Or manually:
 

@@ -10,6 +10,7 @@ import json
 import os
 import tempfile
 import threading
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from .models import ALLOWED_FIELDS, DEFAULT_STATUS
@@ -98,6 +99,9 @@ def create_course(clean_payload: dict) -> dict:
         new_id = int(data["next_id"])
         course = _sanitize(clean_payload)
         course.setdefault("status", DEFAULT_STATUS)
+        course["created_at"] = datetime.now(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
         course = {"id": new_id, **course}
         data["courses"].append(course)
         data["next_id"] = new_id + 1
@@ -120,6 +124,9 @@ def update_course(
                     # Full replace: keep id + status default if not provided.
                     updated = {"id": course_id, **clean}
                     updated.setdefault("status", DEFAULT_STATUS)
+                    # Preserve created_at across full replacements.
+                    if "created_at" in c:
+                        updated["created_at"] = c["created_at"]
                 data["courses"][idx] = updated
                 _save(data)
                 return updated
